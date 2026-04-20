@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "plugin": ["typedoc-plugin-markdown"],
+  "entryPointStrategy": "packages",
+  "entryPoints": ["packages/*"],
+  "out": "docs/api",
+  "tsconfig": "./tsconfig.base.json",
+  "readme": "none",
+  "githubPages": false
+}
