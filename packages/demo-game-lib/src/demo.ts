@@ -20,7 +20,7 @@ function prompt(): void {
   rl.question(`  Attempt ${attemptLabel} > `, (input) => {
     const n = parseInt(input.trim(), 10)
 
-    if (isNaN(n)) {
+    if (Number.isNaN(n)) {
       console.log('  Please enter a valid number.\n')
       prompt()
       return
