@@ -532,6 +532,7 @@ import { type DefaultTheme, defineConfig } from 'vitepress'
 import typedocSidebar from '../api/typedoc-sidebar.json'
 
 export default defineConfig({
+  base: '/my-repo/',   // must match the GitHub repository name
   title: 'My Monorepo',
   description: 'Package documentation',
 
@@ -584,6 +585,7 @@ semantic-release automates version bumps and CHANGELOG generation based on conve
 ```bash
 pnpm add -Dw semantic-release multi-semantic-release \
   @semantic-release/changelog \
+  @semantic-release/exec \
   @semantic-release/git \
   @semantic-release/github
 ```
@@ -602,7 +604,10 @@ Root `.releaserc.json`:
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
-    "@semantic-release/npm",
+    ["@semantic-release/npm", { "npmPublish": false }],
+    ["@semantic-release/exec", {
+      "publishCmd": "pnpm publish --no-git-checks --access public"
+    }],
     [
       "@semantic-release/git",
       {
@@ -616,6 +621,10 @@ Root `.releaserc.json`:
 ```
 
 > **`tagFormat`** scopes release tags to the package name: `@myorg/my-package@1.2.0` instead of a flat `v1.2.0`. This is essential in a monorepo where multiple packages are versioned independently — without it, all packages would share a single release tag namespace.
+
+> **`npmPublish: false`** disables `@semantic-release/npm`'s publish step while keeping its version-bump logic. Publishing is delegated to `@semantic-release/exec` using `pnpm publish`, which is the correct tool for a pnpm workspace: pnpm converts `workspace:*` to the actual version number only in the published tarball, leaving `package.json` on disk untouched. This keeps `workspace:*` in the repo permanently and avoids lockfile drift.
+
+> **`--deps.bump=ignore`** on `multi-semantic-release` prevents it from rewriting `workspace:*` to a concrete version in dependent packages' `package.json`. Without this, `multi-semantic-release` would replace `workspace:*` with `1.0.0` in the committed file, breaking the workspace symlink for local development and causing `pnpm install --frozen-lockfile` to fail on the next CI run.
 
 > **`CHANGELOG.md`** and `package.json` in `@semantic-release/git` assets are relative to each package root. `multi-semantic-release` runs semantic-release in the context of each package, so paths resolve correctly.
 
@@ -636,9 +645,17 @@ Each package that should be published to npm must set `"private": false`. Packag
 
 ## 13. CI/CD — GitHub workflows
 
-### Build & test (every PR)
+Each stage lives in its own reusable workflow file (prefixed with `_`). The orchestrator `ci.yml` wires them into a pipeline — readable at a glance, each stage independently maintainable.
 
-`.github/workflows/ci.yml`:
+```
+.github/workflows/
+  ci.yml        ← orchestrator
+  _check.yml    ← lint, build, test, compat checks
+  _release.yml  ← semantic-release
+  _docs.yml     ← VitePress build + GitHub Pages deploy
+```
+
+**`ci.yml`** — the orchestrator:
 
 ```yaml
 name: CI
@@ -648,8 +665,41 @@ on:
     branches: [main, develop]
   pull_request:
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+  pages: write
+  id-token: write
+
 jobs:
-  ci:
+  check:
+    uses: ./.github/workflows/_check.yml
+
+  release:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/_release.yml
+    secrets: inherit
+
+  docs:
+    needs: release
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/_docs.yml
+    secrets: inherit
+```
+
+**`_check.yml`** — runs on every trigger, posts coverage report on PRs:
+
+```yaml
+name: Check
+
+on:
+  workflow_call:
+
+jobs:
+  check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -673,16 +723,13 @@ jobs:
       - run: pnpm -r check:attw
 ```
 
-### Release (on merge to main)
-
-`.github/workflows/release.yml`:
+**`_release.yml`** — only runs on push to `main`, after `check` passes:
 
 ```yaml
 name: Release
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
 
 jobs:
   release:
@@ -695,7 +742,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0        # semantic-release needs full history
+          fetch-depth: 0
           persist-credentials: false
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
@@ -705,40 +752,30 @@ jobs:
           registry-url: https://npm.pkg.github.com
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm exec multi-semantic-release
+      - run: pnpm exec multi-semantic-release --deps.bump=ignore
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-> **`fetch-depth: 0`** is required — semantic-release walks commit history to determine what changed since the last release tag. A shallow clone will cause it to miss commits or fail entirely.
-
-> **`NODE_AUTH_TOKEN`** is set to `GITHUB_TOKEN` (not a separate secret) because `actions/setup-node` uses it to write the npm auth token into `.npmrc` for the configured `registry-url`. The same `GITHUB_TOKEN` also authenticates the GitHub API calls made by `@semantic-release/github`. No extra secrets needed.
-
-> **Publishing to npmjs.com instead:** replace `registry-url` with `https://registry.npmjs.org`, set `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`, and remove `"registry"` from each package's `publishConfig`.
-
-### Documentation deploy (GitHub Pages)
-
-`.github/workflows/docs.yml`:
+**`_docs.yml`** — only runs after `release` succeeds:
 
 ```yaml
 name: Deploy Docs
 
 on:
-  push:
-    branches: [main]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+  workflow_call:
 
 jobs:
-  deploy:
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5
@@ -757,6 +794,18 @@ jobs:
       - uses: actions/deploy-pages@v5
         id: deployment
 ```
+
+> **Top-level `permissions`** in the caller defines the maximum grant available to all called reusable workflows. GitHub doesn't allow setting `permissions` on individual jobs that call reusable workflows, so the ceiling must be set here. Each called workflow still declares its own narrower permissions — the union just has to fit within this ceiling.
+
+> **`needs` + `if`** on `release` and `docs` means they only run on push to `main`, and each only after the previous job succeeds. On PRs and `develop` pushes, only `check` runs.
+
+> **`secrets: inherit`** passes all caller secrets to the called workflow — required for `GITHUB_TOKEN` to be available inside `_release.yml` and `_docs.yml`.
+
+> **`fetch-depth: 0`** is required on the `release` job — semantic-release walks commit history to determine what changed since the last release tag. A shallow clone (the default) will cause it to miss commits or fail entirely.
+
+> **`NODE_AUTH_TOKEN`** is set to `GITHUB_TOKEN` (not a separate secret) because `actions/setup-node` uses it to write the npm auth token into `.npmrc` for the configured `registry-url`. No extra secrets needed.
+
+> **Publishing to npmjs.com instead:** replace `registry-url` with `https://registry.npmjs.org`, set `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`, and remove `"registry"` from each package's `publishConfig`.
 
 ---
 

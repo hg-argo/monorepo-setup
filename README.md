@@ -24,3 +24,7 @@ Here is a list of the expected features:
 - Automatic CHANGELOG generation & package version bump (`semantic-release`)
 - Proper GitHub workflows to build & deploy the packages, targetting GitHub Packages for the private ones, and NPM for the public ones
 - Keep the addition of a new package in the monorepo as trivial as possible
+
+## Links
+
+- Generated documentation: https://hg-argo.github.io/monorepo-setup

@@ -1,8 +1,7 @@
 name: Release
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
 
 jobs:
   release:
@@ -25,7 +24,7 @@ jobs:
           registry-url: https://npm.pkg.github.com
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm exec multi-semantic-release
+      - run: pnpm exec multi-semantic-release --deps.bump=ignore
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

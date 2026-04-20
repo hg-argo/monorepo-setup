@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 import typedocSidebar from '../api/typedoc-sidebar.json'
 
 export default defineConfig({
+  base: '/monorepo-setup/',
   title: 'Monorepo Demo',
   description: 'Demo monorepo for Node.js TypeScript packages',
 
