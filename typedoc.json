@@ -7,5 +7,7 @@
   "readme": "none",
   "githubPages": false,
   "entryFileName": "index",
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
   "skipErrorChecking": true
 }
