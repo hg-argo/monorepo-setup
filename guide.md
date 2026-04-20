@@ -165,7 +165,9 @@ Create a root `tsconfig.base.json` that all packages extend:
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "lib": ["ES2022"]
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "composite": true
   }
 }
 ```
