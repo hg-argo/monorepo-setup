@@ -649,9 +649,9 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -683,12 +683,12 @@ jobs:
       pull-requests: write
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0        # semantic-release needs full history
           persist-credentials: false
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -728,9 +728,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -738,11 +738,11 @@ jobs:
       - run: pnpm build
       - run: pnpm docs:api
       - run: pnpm docs:build
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.vitepress/dist
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment
 ```
 
@@ -753,7 +753,7 @@ jobs:
 This is the routine checklist for adding a package to the monorepo once the above is in place.
 
 1. **Scaffold** — create `packages/my-package/` with:
-   - `package.json` (see step 7 template)
+   - `package.json` (see step 7 template) — include `typedocOptions` pointing to `src/index.ts`
    - `tsconfig.json` extending root base
    - `tsdown.config.ts`
    - `vitest.config.ts`
@@ -763,11 +763,17 @@ This is the routine checklist for adding a package to the monorepo once the abov
 
 3. **Install dependencies** — run `pnpm install` from the root. Cross-package deps use `workspace:*`.
 
-4. **Verify** — run `pnpm build && pnpm test && pnpm -r check:publint && pnpm -r check:attw`.
+4. **Add package documentation** — create `packages/my-package/docs/index.md` with installation and usage instructions.
 
-5. **Publish config** — set `"private": false` (or `"publishConfig"` for GitHub Packages) if the package should be published.
+5. **Register in VitePress** — in `docs/.vitepress/config.ts`, add:
+   - A `rewrites` entry: `'packages/my-package/docs/:page': 'my-package/:page'`
+   - A nav item and sidebar entry under `/my-package/`
 
-> The goal is that steps 1–3 are the only manual steps. Everything else (linting, testing, publishing) is handled automatically by the tooling configured above.
+6. **Verify** — run `pnpm build && pnpm test && pnpm -r check:publint && pnpm -r check:attw && pnpm docs:api && pnpm docs:build`.
+
+7. **Publish config** — set `"private": false` (or `"publishConfig"` for GitHub Packages) if the package should be published.
+
+> The API reference sidebar updates automatically after step 6's `docs:api` — `typedoc-vitepress-theme` regenerates `typedoc-sidebar.json` from the new package's exports. Only the hand-written nav/sidebar entries in step 5 need manual attention.
 
 ---
 
