@@ -532,6 +532,7 @@ import { type DefaultTheme, defineConfig } from 'vitepress'
 import typedocSidebar from '../api/typedoc-sidebar.json'
 
 export default defineConfig({
+  base: '/my-repo/',   // must match the GitHub repository name
   title: 'My Monorepo',
   description: 'Package documentation',
 
