@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
     "access": "public"
   },
   "main": "./dist/index.cjs",

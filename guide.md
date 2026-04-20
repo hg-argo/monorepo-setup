@@ -692,18 +692,20 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          registry-url: https://npm.pkg.github.com
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm exec multi-semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 > **`fetch-depth: 0`** is required — semantic-release walks commit history to determine what changed since the last release tag. A shallow clone will cause it to miss commits or fail entirely.
 
-> **Private packages → GitHub Packages:** For packages that should go to GitHub Packages instead of npm, set `"publishConfig": { "registry": "https://npm.pkg.github.com" }` in that package's `package.json` and use `NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` in the release job.
+> **`NODE_AUTH_TOKEN`** is set to `GITHUB_TOKEN` (not a separate secret) because `actions/setup-node` uses it to write the npm auth token into `.npmrc` for the configured `registry-url`. The same `GITHUB_TOKEN` also authenticates the GitHub API calls made by `@semantic-release/github`. No extra secrets needed.
+
+> **Publishing to npmjs.com instead:** replace `registry-url` with `https://registry.npmjs.org`, set `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`, and remove `"registry"` from each package's `publishConfig`.
 
 ### Documentation deploy (GitHub Pages)
 
@@ -771,7 +773,7 @@ This is the routine checklist for adding a package to the monorepo once the abov
 
 6. **Verify** — run `pnpm build && pnpm test && pnpm -r check:publint && pnpm -r check:attw && pnpm docs:api && pnpm docs:build`.
 
-7. **Publish config** — set `"private": false` (or `"publishConfig"` for GitHub Packages) if the package should be published.
+7. **Publish config** — add `"publishConfig": { "registry": "https://npm.pkg.github.com", "access": "public" }` to the package's `package.json` to publish to GitHub Packages. Omit `"private": true` (or remove it entirely).
 
 > The API reference sidebar updates automatically after step 6's `docs:api` — `typedoc-vitepress-theme` regenerates `typedoc-sidebar.json` from the new package's exports. Only the hand-written nav/sidebar entries in step 5 need manual attention.
 
