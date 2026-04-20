@@ -191,40 +191,25 @@ Create a root `tsconfig.json` that references all packages (for editor support a
 Biome replaces both ESLint and Prettier in a single, fast Rust-based tool.
 
 ```bash
-pnpm add -Dw @biomejs/biome
-pnpm biome init
+pnpm add -Dw @biomejs/biome @side-xp/biome-config
 ```
 
-Recommended `biome.json`:
+`biome.json` at the root extends the shared config:
 
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true
-    }
-  },
-  "organizeImports": {
-    "enabled": true
-  },
-  "files": {
-    "ignore": ["dist/", "coverage/", "*.tsbuildinfo"]
-  }
+  "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
+  "extends": ["@side-xp/biome-config/biome.json"]
 }
 ```
+
+The shared config (`@side-xp/biome-config`) enforces:
+- 2-space indentation, 120-character line width, LF line endings
+- Single quotes, no semicolons, trailing commas everywhere
+- `recommended` lint rules
+- Import organization via Biome's `assist` feature (Biome 2.x)
+
+Override any rule locally by adding it to your `biome.json` alongside the `extends` — local keys merge on top of the extended config.
 
 Add to `package.json` scripts (already listed in step 2):
 
@@ -234,6 +219,8 @@ pnpm format   # auto-fix formatting
 ```
 
 > **Why Biome over ESLint + Prettier?** The two-tool combo has well-known friction: format-on-save fights with lint-on-save, plugin version conflicts, and slow cold starts on large repos. Biome is 10–100× faster and has a single config file. The tradeoff is a smaller plugin ecosystem — but for a greenfield repo, the recommended ruleset covers the vast majority of real issues.
+
+> **Why a shared config package?** Centralizing Biome rules in `@side-xp/biome-config` means all projects in the org stay consistent without copy-pasting config. When rules need to change, a single package update propagates everywhere.
 
 ---
 
