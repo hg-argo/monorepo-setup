@@ -344,13 +344,13 @@ Each package's `package.json` should expose the built output correctly:
 pnpm add -Dw vitest @vitest/coverage-v8
 ```
 
-Root `vitest.config.ts` (workspace mode):
+Root `vitest.workspace.ts` (workspace mode):
 
 ```ts
-import { defineWorkspace } from 'vitest/config';
-
-export default defineWorkspace(['packages/*/vitest.config.ts']);
+export default ['packages/*/vitest.config.ts']
 ```
+
+> **Vitest 4.x removed `defineWorkspace`** from `vitest/config`. The workspace is now declared in a dedicated `vitest.workspace.ts` file with a plain array export — no import needed.
 
 Each package's `vitest.config.ts`:
 
