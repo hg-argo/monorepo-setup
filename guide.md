@@ -40,7 +40,24 @@ Before starting, ensure the following tools are available on your machine:
 ```bash
 git init
 git branch -M main
+git checkout -b develop
 ```
+
+### Branching strategy
+
+This repo uses a two-branch model:
+
+| Branch | Purpose |
+|---|---|
+| `main` | Stable, releasable state. Protected. Never commit directly. |
+| `develop` | Active development. All day-to-day work goes here. |
+
+The release flow is:
+1. Work accumulates on `develop` via feature branches or direct commits.
+2. When a release is ready, open a PR from `develop` → `main`.
+3. Merging that PR triggers semantic-release on `main` (see step 12), which bumps versions, generates CHANGELOGs, and publishes packages automatically.
+
+> This model keeps `main` always in a releasable state and gives a clear integration point for release decisions, without the overhead of a full Gitflow (no `release/*` branches needed — semantic-release handles versioning).
 
 Create the root `package.json`:
 
@@ -550,7 +567,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
 
 jobs:
