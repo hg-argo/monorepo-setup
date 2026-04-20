@@ -1,3 +1,10 @@
+## @hg-argo/demo-game-lib [1.0.1](https://github.com/hg-argo/monorepo-setup/compare/@hg-argo/demo-game-lib@1.0.0...@hg-argo/demo-game-lib@1.0.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* fixed package versions ([a4ce7f1](https://github.com/hg-argo/monorepo-setup/commit/a4ce7f16ee7d8bcaac192dfd46dfd820e60264b1))
+
 # @hg-argo/demo-game-lib 1.0.0 (2026-04-20)
 
 

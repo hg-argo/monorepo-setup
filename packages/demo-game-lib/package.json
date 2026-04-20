@@ -1,6 +1,6 @@
 {
   "name": "@hg-argo/demo-game-lib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com",
@@ -41,6 +41,6 @@
     "demo": "tsx src/demo.ts"
   },
   "dependencies": {
-    "@hg-argo/demo-core-lib": "workspace:*"
+    "@hg-argo/demo-core-lib": "1.0.0"
   }
 }
