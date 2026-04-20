@@ -657,6 +657,14 @@ on:
     branches: [main, develop]
   pull_request:
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+  pages: write
+  id-token: write
+
 jobs:
   check:
     uses: ./.github/workflows/_check.yml
@@ -778,6 +786,8 @@ jobs:
       - uses: actions/deploy-pages@v5
         id: deployment
 ```
+
+> **Top-level `permissions`** in the caller defines the maximum grant available to all called reusable workflows. GitHub doesn't allow setting `permissions` on individual jobs that call reusable workflows, so the ceiling must be set here. Each called workflow still declares its own narrower permissions — the union just has to fit within this ceiling.
 
 > **`needs` + `if`** on `release` and `docs` means they only run on push to `main`, and each only after the previous job succeeds. On PRs and `develop` pushes, only `check` runs.
 
