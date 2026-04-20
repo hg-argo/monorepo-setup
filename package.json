@@ -15,5 +15,8 @@
     "docs:api": "typedoc",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }
