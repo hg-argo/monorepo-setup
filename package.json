@@ -16,6 +16,7 @@
     "docs:api": "typedoc",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
+    "docs:preview": "pnpm docs:api && pnpm docs:dev",
     "prepare": "husky"
   },
   "lint-staged": {

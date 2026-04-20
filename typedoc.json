@@ -4,7 +4,8 @@
   "entryPointStrategy": "packages",
   "entryPoints": ["packages/*"],
   "out": "docs/api",
-  "tsconfig": "./tsconfig.base.json",
   "readme": "none",
-  "githubPages": false
+  "githubPages": false,
+  "entryFileName": "index",
+  "skipErrorChecking": true
 }
