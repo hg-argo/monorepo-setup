@@ -65,6 +65,7 @@ Create the root `package.json`:
 {
   "name": "monorepo",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=22",
@@ -252,7 +253,7 @@ pnpm exec lint-staged
 ```json
 {
   "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,json}": ["biome check --write --no-bail"]
+    "**/*.{ts,tsx,js,jsx,json}": ["biome check --write"]
   }
 }
 ```

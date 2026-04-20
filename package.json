@@ -1,6 +1,7 @@
 {
   "name": "monorepo",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=22",
@@ -14,11 +15,21 @@
     "format": "biome format --write .",
     "docs:api": "typedoc",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs"
+    "docs:build": "vitepress build docs",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx,js,jsx,json}": [
+      "biome check --write"
+    ]
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@side-xp/biome-config": "^1.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "typescript": "^6.0.3"
   }
 }
