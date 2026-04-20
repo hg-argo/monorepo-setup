@@ -1,0 +1,4 @@
+{
+  "files": [],
+  "references": [{ "path": "./packages/demo-core-lib" }, { "path": "./packages/demo-game-lib" }]
+}

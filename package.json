@@ -1,6 +1,7 @@
 {
   "name": "monorepo",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=22",
@@ -14,6 +15,39 @@
     "format": "biome format --write .",
     "docs:api": "typedoc",
     "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs"
+    "docs:build": "vitepress build docs",
+    "docs:preview": "pnpm docs:api && pnpm docs:dev",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx,js,jsx,json,jsonc}": [
+      "biome check --write"
+    ]
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@biomejs/biome": "^2.4.12",
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@side-xp/biome-config": "^1.1.1",
+    "@types/node": "^25.6.0",
+    "@vitest/coverage-v8": "^4.1.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "multi-semantic-release": "^3.1.0",
+    "publint": "^0.3.18",
+    "semantic-release": "^25.0.3",
+    "tsdown": "^0.21.9",
+    "tsx": "^4.21.0",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.11.0",
+    "typedoc-vitepress-theme": "^1.1.2",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.9",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.4"
   }
 }

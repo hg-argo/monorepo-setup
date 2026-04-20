@@ -3,5 +3,7 @@ dist/
 .cache/
 *.tsbuildinfo
 coverage/
-docs/.vitepress/dist/
-docs/.vitepress/cache/
+**/.vitepress/dist/
+**/.vitepress/cache/
+docs/api
+.claude/

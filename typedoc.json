@@ -1,0 +1,14 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "docsRoot": "./docs",
+  "entryPointStrategy": "packages",
+  "entryPoints": ["packages/*"],
+  "out": "docs/api",
+  "readme": "none",
+  "githubPages": false,
+  "entryFileName": "index",
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "skipErrorChecking": true
+}
