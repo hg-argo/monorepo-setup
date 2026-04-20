@@ -1,6 +1,7 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "plugin": ["typedoc-plugin-markdown"],
+  "plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+  "docsRoot": "./docs",
   "entryPointStrategy": "packages",
   "entryPoints": ["packages/*"],
   "out": "docs/api",

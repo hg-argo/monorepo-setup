@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import typedocSidebar from '../api/typedoc-sidebar.json'
 
 export default defineConfig({
   title: 'Monorepo Demo',
@@ -49,30 +50,7 @@ export default defineConfig({
           items: [{ text: 'Overview', link: '/demo-game-lib/' }],
         },
       ],
-      '/api/': [
-        {
-          text: 'demo-core-lib',
-          link: '/api/@bear2b/demo-core-lib/',
-          items: [
-            { text: 'Range', link: '/api/@bear2b/demo-core-lib/interfaces/Range' },
-            { text: 'clamp()', link: '/api/@bear2b/demo-core-lib/functions/clamp' },
-            { text: 'contains()', link: '/api/@bear2b/demo-core-lib/functions/contains' },
-            { text: 'randomInt()', link: '/api/@bear2b/demo-core-lib/functions/randomInt' },
-            { text: 'size()', link: '/api/@bear2b/demo-core-lib/functions/size' },
-          ],
-        },
-        {
-          text: 'demo-game-lib',
-          link: '/api/@bear2b/demo-game-lib/',
-          items: [
-            { text: 'GuessGame', link: '/api/@bear2b/demo-game-lib/classes/GuessGame' },
-            { text: 'GuessGameOptions', link: '/api/@bear2b/demo-game-lib/interfaces/GuessGameOptions' },
-            { text: 'GameState', link: '/api/@bear2b/demo-game-lib/interfaces/GameState' },
-            { text: 'GameStatus', link: '/api/@bear2b/demo-game-lib/type-aliases/GameStatus' },
-            { text: 'GuessResult', link: '/api/@bear2b/demo-game-lib/type-aliases/GuessResult' },
-          ],
-        },
-      ],
+      '/api/': typedocSidebar,
     },
     socialLinks: [{ icon: 'github', link: 'https://github.com/bear2b/monorepo-setup' }],
   },

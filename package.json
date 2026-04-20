@@ -39,6 +39,7 @@
     "tsx": "^4.21.0",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.11.0",
+    "typedoc-vitepress-theme": "^1.1.2",
     "typescript": "^6.0.3",
     "vite": "^8.0.9",
     "vitepress": "^1.6.4",
