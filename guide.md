@@ -636,9 +636,17 @@ Each package that should be published to npm must set `"private": false`. Packag
 
 ## 13. CI/CD — GitHub workflows
 
-### Build & test (every PR)
+Each stage lives in its own reusable workflow file (prefixed with `_`). The orchestrator `ci.yml` wires them into a pipeline — readable at a glance, each stage independently maintainable.
 
-`.github/workflows/ci.yml`:
+```
+.github/workflows/
+  ci.yml        ← orchestrator
+  _check.yml    ← lint, build, test, compat checks
+  _release.yml  ← semantic-release
+  _docs.yml     ← VitePress build + GitHub Pages deploy
+```
+
+**`ci.yml`** — the orchestrator:
 
 ```yaml
 name: CI
@@ -649,7 +657,32 @@ on:
   pull_request:
 
 jobs:
-  ci:
+  check:
+    uses: ./.github/workflows/_check.yml
+
+  release:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/_release.yml
+    secrets: inherit
+
+  docs:
+    needs: release
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/_docs.yml
+    secrets: inherit
+```
+
+**`_check.yml`** — runs on every trigger, posts coverage report on PRs:
+
+```yaml
+name: Check
+
+on:
+  workflow_call:
+
+jobs:
+  check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -673,16 +706,13 @@ jobs:
       - run: pnpm -r check:attw
 ```
 
-### Release (on merge to main)
-
-`.github/workflows/release.yml`:
+**`_release.yml`** — only runs on push to `main`, after `check` passes:
 
 ```yaml
 name: Release
 
 on:
-  push:
-    branches: [main]
+  workflow_call:
 
 jobs:
   release:
@@ -695,7 +725,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0        # semantic-release needs full history
+          fetch-depth: 0
           persist-credentials: false
       - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v6
@@ -711,34 +741,24 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-> **`fetch-depth: 0`** is required — semantic-release walks commit history to determine what changed since the last release tag. A shallow clone will cause it to miss commits or fail entirely.
-
-> **`NODE_AUTH_TOKEN`** is set to `GITHUB_TOKEN` (not a separate secret) because `actions/setup-node` uses it to write the npm auth token into `.npmrc` for the configured `registry-url`. The same `GITHUB_TOKEN` also authenticates the GitHub API calls made by `@semantic-release/github`. No extra secrets needed.
-
-> **Publishing to npmjs.com instead:** replace `registry-url` with `https://registry.npmjs.org`, set `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`, and remove `"registry"` from each package's `publishConfig`.
-
-### Documentation deploy (GitHub Pages)
-
-`.github/workflows/docs.yml`:
+**`_docs.yml`** — only runs after `release` succeeds:
 
 ```yaml
 name: Deploy Docs
 
 on:
-  push:
-    branches: [main]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+  workflow_call:
 
 jobs:
-  deploy:
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5
@@ -757,6 +777,16 @@ jobs:
       - uses: actions/deploy-pages@v5
         id: deployment
 ```
+
+> **`needs` + `if`** on `release` and `docs` means they only run on push to `main`, and each only after the previous job succeeds. On PRs and `develop` pushes, only `check` runs.
+
+> **`secrets: inherit`** passes all caller secrets to the called workflow — required for `GITHUB_TOKEN` to be available inside `_release.yml` and `_docs.yml`.
+
+> **`fetch-depth: 0`** is required on the `release` job — semantic-release walks commit history to determine what changed since the last release tag. A shallow clone (the default) will cause it to miss commits or fail entirely.
+
+> **`NODE_AUTH_TOKEN`** is set to `GITHUB_TOKEN` (not a separate secret) because `actions/setup-node` uses it to write the npm auth token into `.npmrc` for the configured `registry-url`. No extra secrets needed.
+
+> **Publishing to npmjs.com instead:** replace `registry-url` with `https://registry.npmjs.org`, set `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`, and remove `"registry"` from each package's `publishConfig`.
 
 ---
 
