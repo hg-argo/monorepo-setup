@@ -253,7 +253,7 @@ pnpm exec lint-staged
 ```json
 {
   "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,json}": ["biome check --write"]
+    "**/*.{ts,tsx,js,jsx,json,jsonc}": ["biome check --write"]
   }
 }
 ```

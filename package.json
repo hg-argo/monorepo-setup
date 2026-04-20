@@ -19,7 +19,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,json}": [
+    "**/*.{ts,tsx,js,jsx,json,jsonc}": [
       "biome check --write"
     ]
   },
