@@ -384,6 +384,7 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
+      reporter: ['text', 'json-summary'],
       include: ['src/**'],
       exclude: ['src/**/*.test.ts'],
     },
@@ -402,6 +403,8 @@ Root scripts in `package.json`:
   }
 }
 ```
+
+> **`json-summary` reporter** is required for `davelosert/vitest-coverage-report-action` (see step 13) to post a coverage summary comment on PRs. `text` is kept for readable local output. No third-party service needed — the action uses `GITHUB_TOKEN` directly.
 
 > **Why not Jest?** Vitest shares Vite's plugin ecosystem, has first-class TypeScript support without a separate transform step, and is significantly faster due to parallel execution and esbuild-based transforms. For a TypeScript-first monorepo, Vitest is the clear choice in 2025+.
 
@@ -648,6 +651,9 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5
@@ -659,6 +665,10 @@ jobs:
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm test:coverage
+      - uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          name: my-package
+          working-directory: packages/my-package
       - run: pnpm -r check:publint
       - run: pnpm -r check:attw
 ```
@@ -771,9 +781,11 @@ This is the routine checklist for adding a package to the monorepo once the abov
    - A `rewrites` entry: `'packages/my-package/docs/:page': 'my-package/:page'`
    - A nav item and sidebar entry under `/my-package/`
 
-6. **Verify** — run `pnpm build && pnpm test && pnpm -r check:publint && pnpm -r check:attw && pnpm docs:api && pnpm docs:build`.
+6. **Add coverage report step** — add a `davelosert/vitest-coverage-report-action@v2` step to `ci.yml` with the new package's `name` and `working-directory`.
 
-7. **Publish config** — add `"publishConfig": { "registry": "https://npm.pkg.github.com", "access": "public" }` to the package's `package.json` to publish to GitHub Packages. Omit `"private": true` (or remove it entirely).
+7. **Verify** — run `pnpm build && pnpm test && pnpm -r check:publint && pnpm -r check:attw && pnpm docs:api && pnpm docs:build`.
+
+8. **Publish config** — add `"publishConfig": { "registry": "https://npm.pkg.github.com", "access": "public" }` to the package's `package.json` to publish to GitHub Packages. Omit `"private": true` (or remove it entirely).
 
 > The API reference sidebar updates automatically after step 6's `docs:api` — `typedoc-vitepress-theme` regenerates `typedoc-sidebar.json` from the new package's exports. Only the hand-written nav/sidebar entries in step 5 need manual attention.
 

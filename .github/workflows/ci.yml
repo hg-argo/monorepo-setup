@@ -8,6 +8,9 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v5
@@ -19,5 +22,13 @@ jobs:
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm test:coverage
+      - uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          name: demo-core-lib
+          working-directory: packages/demo-core-lib
+      - uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          name: demo-game-lib
+          working-directory: packages/demo-game-lib
       - run: pnpm -r check:publint
       - run: pnpm -r check:attw
