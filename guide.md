@@ -585,6 +585,7 @@ semantic-release automates version bumps and CHANGELOG generation based on conve
 ```bash
 pnpm add -Dw semantic-release multi-semantic-release \
   @semantic-release/changelog \
+  @semantic-release/exec \
   @semantic-release/git \
   @semantic-release/github
 ```
@@ -603,7 +604,10 @@ Root `.releaserc.json`:
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
-    "@semantic-release/npm",
+    ["@semantic-release/npm", { "npmPublish": false }],
+    ["@semantic-release/exec", {
+      "publishCmd": "pnpm publish --no-git-checks --access public"
+    }],
     [
       "@semantic-release/git",
       {
@@ -617,6 +621,10 @@ Root `.releaserc.json`:
 ```
 
 > **`tagFormat`** scopes release tags to the package name: `@myorg/my-package@1.2.0` instead of a flat `v1.2.0`. This is essential in a monorepo where multiple packages are versioned independently — without it, all packages would share a single release tag namespace.
+
+> **`npmPublish: false`** disables `@semantic-release/npm`'s publish step while keeping its version-bump logic. Publishing is delegated to `@semantic-release/exec` using `pnpm publish`, which is the correct tool for a pnpm workspace: pnpm converts `workspace:*` to the actual version number only in the published tarball, leaving `package.json` on disk untouched. This keeps `workspace:*` in the repo permanently and avoids lockfile drift.
+
+> **`--deps.bump=ignore`** on `multi-semantic-release` prevents it from rewriting `workspace:*` to a concrete version in dependent packages' `package.json`. Without this, `multi-semantic-release` would replace `workspace:*` with `1.0.0` in the committed file, breaking the workspace symlink for local development and causing `pnpm install --frozen-lockfile` to fail on the next CI run.
 
 > **`CHANGELOG.md`** and `package.json` in `@semantic-release/git` assets are relative to each package root. `multi-semantic-release` runs semantic-release in the context of each package, so paths resolve correctly.
 
@@ -744,7 +752,7 @@ jobs:
           registry-url: https://npm.pkg.github.com
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - run: pnpm exec multi-semantic-release
+      - run: pnpm exec multi-semantic-release --deps.bump=ignore
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
