@@ -40,13 +40,13 @@ export default defineConfig({
       '/guide/': [{ text: 'Introduction', link: '/guide/' }],
       '/demo-core-lib/': [
         {
-          text: '@bear2b/demo-core-lib',
+          text: '@hg-argo/demo-core-lib',
           items: [{ text: 'Overview', link: '/demo-core-lib/' }],
         },
       ],
       '/demo-game-lib/': [
         {
-          text: '@bear2b/demo-game-lib',
+          text: '@hg-argo/demo-game-lib',
           items: [{ text: 'Overview', link: '/demo-game-lib/' }],
         },
       ],

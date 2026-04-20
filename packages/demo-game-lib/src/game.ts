@@ -1,4 +1,4 @@
-import { type Range, randomInt } from '@bear2b/demo-core-lib'
+import { type Range, randomInt } from '@hg-argo/demo-core-lib'
 import type { GameState, GameStatus, GuessResult } from './types.js'
 
 export interface GuessGameOptions {

@@ -1,8 +1,10 @@
 {
-  "name": "@bear2b/demo-game-lib",
+  "name": "@hg-argo/demo-game-lib",
   "version": "0.0.0",
   "type": "module",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -38,6 +40,6 @@
     "demo": "tsx src/demo.ts"
   },
   "dependencies": {
-    "@bear2b/demo-core-lib": "workspace:*"
+    "@hg-argo/demo-core-lib": "workspace:*"
   }
 }

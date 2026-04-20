@@ -1,17 +1,17 @@
-# @bear2b/demo-game-lib
+# @hg-argo/demo-game-lib
 
-A headless guess-the-number game engine built on top of `@bear2b/demo-core-lib`. Contains no I/O — wire it to any UI (console, web, CLI) by calling `start()`, `guess()`, and `getState()`.
+A headless guess-the-number game engine built on top of `@hg-argo/demo-core-lib`. Contains no I/O — wire it to any UI (console, web, CLI) by calling `start()`, `guess()`, and `getState()`.
 
 ## Installation
 
 ::: code-group
 
 ```sh [pnpm]
-pnpm add @bear2b/demo-game-lib
+pnpm add @hg-argo/demo-game-lib
 ```
 
 ```sh [npm]
-npm install @bear2b/demo-game-lib
+npm install @hg-argo/demo-game-lib
 ```
 
 :::
@@ -19,7 +19,7 @@ npm install @bear2b/demo-game-lib
 ## Quick start
 
 ```ts
-import { GuessGame } from '@bear2b/demo-game-lib'
+import { GuessGame } from '@hg-argo/demo-game-lib'
 
 const game = new GuessGame({ range: { min: 1, max: 100 }, maxAttempts: 10 })
 
@@ -43,7 +43,7 @@ console.log(game.getState())
 The main game class. Accepts an optional `GuessGameOptions` object.
 
 ```ts
-import { GuessGame } from '@bear2b/demo-game-lib'
+import { GuessGame } from '@hg-argo/demo-game-lib'
 
 const game = new GuessGame()          // defaults: range 1–100, 10 attempts
 const custom = new GuessGame({
@@ -137,7 +137,7 @@ interface GameState {
 Pass a custom `randomFn` to control the secret number in tests:
 
 ```ts
-import { GuessGame } from '@bear2b/demo-game-lib'
+import { GuessGame } from '@hg-argo/demo-game-lib'
 import { expect, test } from 'vitest'
 
 test('wins on correct guess', () => {
@@ -152,4 +152,4 @@ test('wins on correct guess', () => {
 
 ## API Reference
 
-See the full [API Reference](/api/@bear2b/demo-game-lib/) for detailed type signatures.
+See the full [API Reference](/api/@hg-argo/demo-game-lib/) for detailed type signatures.

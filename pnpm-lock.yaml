@@ -85,7 +85,7 @@ importers:
 
   packages/demo-game-lib:
     dependencies:
-      '@bear2b/demo-core-lib':
+      '@hg-argo/demo-core-lib':
         specifier: workspace:*
         version: link:../demo-core-lib
 
