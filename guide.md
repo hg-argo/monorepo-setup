@@ -293,16 +293,27 @@ pnpm add -Dw tsdown
 Each package gets its own `tsdown.config.ts`:
 
 ```ts
-import { defineConfig } from 'tsdown';
+import { defineConfig } from 'tsdown'
 
-export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm', 'cjs'],
-  dts: true,
-  clean: true,
-  sourcemap: true,
-});
+export default defineConfig([
+  {
+    entry: ['src/index.ts'],
+    format: ['esm'],
+    dts: true,
+    clean: true,
+    sourcemap: true,
+    outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
+  },
+  {
+    entry: ['src/index.ts'],
+    format: ['cjs'],
+    dts: true,
+    outExtensions: () => ({ js: '.cjs', dts: '.d.cts' }),
+  },
+])
 ```
+
+> **Why split into two config entries?** When building dual ESM+CJS in a single pass, tsdown defaults to `.mjs`/`.cjs` extensions to disambiguate. Splitting the configs and using `outExtensions` gives conventional `.js` for ESM (correct when `"type": "module"` is set) and `.cjs` for CommonJS, which matches the `exports` field consumers expect.
 
 Each package's `package.json` should expose the built output correctly:
 
@@ -457,9 +468,12 @@ pnpm add -Dw typedoc typedoc-plugin-markdown
 VitePress hosts the project documentation and auto-generated API docs.
 
 ```bash
-pnpm add -Dw vitepress
-pnpm exec vitepress init  # follow prompts, target ./docs
+pnpm add -Dw vitepress vite
 ```
+
+> **Why install `vite` explicitly?** VitePress 1.x depends on Vite 5, but Vitest 4.x requires Vite 6+. Without an explicit root-level `vite` entry, pnpm resolves Vitest's peer dependency against Vite 5, which breaks Vitest at startup (`vite/module-runner` does not exist in Vite 5). Adding `vite` at the root forces pnpm to use the latest Vite for Vitest while VitePress keeps its own Vite 5 internally.
+
+Create the docs structure manually (skip `vitepress init` — it is interactive and adds scripts you already have):
 
 Recommended structure:
 
