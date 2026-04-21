@@ -151,10 +151,10 @@ When a package A depends on package B in the same monorepo, declare it as a work
 
 ## 4. TypeScript
 
-Install TypeScript at the root (used by all packages):
+Install TypeScript and Node.js type definitions at the root (used by all packages):
 
 ```bash
-pnpm add -Dw typescript
+pnpm add -Dw typescript @types/node
 ```
 
 Create a root `tsconfig.base.json` that all packages extend:
@@ -191,6 +191,8 @@ Create a root `tsconfig.json` that references all packages (for editor support a
   ]
 }
 ```
+
+> **`@types/node`** is required because `tsconfig.base.json` declares `"types": ["node"]`. Without it, TypeScript cannot find the Node.js type definitions, causing `TS2688` errors and unresolved globals like `console`. Tools that invoke `tsc` directly — such as TypeDoc — will fail even if your bundler (tsdown) works fine on its own.
 
 > **`verbatimModuleSyntax`** enforces that `import type` is used for type-only imports. This is essential for bundlers (like tsdown) that strip types without running `tsc` — it prevents runtime errors from type-only imports being emitted as real `require()` calls.
 
