@@ -80,6 +80,7 @@ Create the root `package.json`:
     "docs:api": "typedoc",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
+    "docs:preview": "pnpm docs:api && pnpm docs:dev",
     "prepare": "husky"
   }
 }
@@ -390,17 +391,7 @@ export default defineConfig({
 });
 ```
 
-Root scripts in `package.json`:
-
-```json
-{
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
-  }
-}
-```
+The `test` and `test:coverage` scripts are already wired up in the root `package.json` from step 2 (`pnpm -r test` / `pnpm -r test:coverage`). Each package exposes its own `test` and `test:coverage` scripts that Vitest runs.
 
 > **`json-summary` reporter** is required for `davelosert/vitest-coverage-report-action` (see step 13) to post a coverage summary comment on PRs. `text` is kept for readable local output. No third-party service needed — the action uses `GITHUB_TOKEN` directly.
 
@@ -501,7 +492,7 @@ VitePress hosts the project documentation and auto-generated API docs.
 pnpm add -Dw vitepress vite
 ```
 
-> **Why install `vite` explicitly?** VitePress 1.x depends on Vite 5, but Vitest 4.x requires Vite 6+. Without an explicit root-level `vite` entry, pnpm resolves Vitest's peer dependency against Vite 5, which breaks Vitest at startup (`vite/module-runner` does not exist in Vite 5). Adding `vite` at the root forces pnpm to use the latest Vite for Vitest while VitePress keeps its own Vite 5 internally.
+> **Why install `vite` explicitly?** VitePress bundles its own Vite internally, but Vitest 4.x requires a newer Vite than VitePress's internal version. Without an explicit root-level `vite` entry, pnpm may resolve Vitest's peer dependency against VitePress's older internal Vite, which breaks Vitest at startup. Adding `vite` at the root pins the version used by Vitest while VitePress continues to use its own copy.
 
 Create the docs structure manually (skip `vitepress init` — it is interactive and adds scripts you already have):
 
