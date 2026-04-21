@@ -28,7 +28,7 @@
 Before starting, ensure the following tools are available on your machine:
 
 - **Node.js** ≥ 22 (LTS recommended)
-- **pnpm** ≥ 9 — install via [Corepack](https://nodejs.org/api/corepack.html): `corepack enable && corepack prepare pnpm@latest --activate`
+- **pnpm** ≥ 10 — install via [Corepack](https://nodejs.org/api/corepack.html): `corepack enable && corepack prepare pnpm@latest --activate`
 - **Git** ≥ 2.x
 
 > **Why Corepack?** Corepack ships with Node.js and manages package manager versions without requiring a global install. It also enforces the `packageManager` field in `package.json`, which is how we prevent contributors from accidentally using npm or yarn.
@@ -66,10 +66,10 @@ Create the root `package.json`:
   "name": "monorepo",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=22",
-    "pnpm": ">=9"
+    "pnpm": ">=10"
   },
   "scripts": {
     "build": "pnpm -r build",
@@ -80,6 +80,7 @@ Create the root `package.json`:
     "docs:api": "typedoc",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
+    "docs:preview": "pnpm docs:api && pnpm docs:dev",
     "prepare": "husky"
   }
 }
@@ -150,10 +151,10 @@ When a package A depends on package B in the same monorepo, declare it as a work
 
 ## 4. TypeScript
 
-Install TypeScript at the root (used by all packages):
+Install TypeScript and Node.js type definitions at the root (used by all packages):
 
 ```bash
-pnpm add -Dw typescript
+pnpm add -Dw typescript @types/node
 ```
 
 Create a root `tsconfig.base.json` that all packages extend:
@@ -190,6 +191,8 @@ Create a root `tsconfig.json` that references all packages (for editor support a
   ]
 }
 ```
+
+> **`@types/node`** is required because `tsconfig.base.json` declares `"types": ["node"]`. Without it, TypeScript cannot find the Node.js type definitions, causing `TS2688` errors and unresolved globals like `console`. Tools that invoke `tsc` directly — such as TypeDoc — will fail even if your bundler (tsdown) works fine on its own.
 
 > **`verbatimModuleSyntax`** enforces that `import type` is used for type-only imports. This is essential for bundlers (like tsdown) that strip types without running `tsc` — it prevents runtime errors from type-only imports being emitted as real `require()` calls.
 
@@ -285,6 +288,19 @@ pnpm exec commitlint --edit "$1"
 > **Conventional commits format:** `type(scope): description` — e.g. `feat(utils): add debounce helper`. Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `perf`, `test`, `ci`, `build`, `revert`. This format is the input contract for semantic-release's automatic versioning in step 12.
 
 > **Why commitlint on commit-msg rather than pre-push?** Catching a bad commit message immediately (before it's in history) is far less disruptive than rejecting a push with multiple already-made commits. Fix it once, not five times.
+
+### Git GUI clients (Fork, Sourcetree, Tower, etc.)
+
+Git GUIs don't inherit your shell's `PATH`, so `pnpm` and `node` are not found at runtime.
+
+Husky v9 provides `~/.config/husky/init.sh` — sourced by the runner before every hook — to fix this. Create it once per machine:
+
+```sh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+> This is a one-time global setup per machine, not per project. Some GUIs (eg. Fork) also expose a dedicated "Git environment PATH" setting that can be used as an alternative.
 
 ---
 
@@ -390,17 +406,7 @@ export default defineConfig({
 });
 ```
 
-Root scripts in `package.json`:
-
-```json
-{
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
-  }
-}
-```
+The `test` and `test:coverage` scripts are already wired up in the root `package.json` from step 2 (`pnpm -r test` / `pnpm -r test:coverage`). Each package exposes its own `test` and `test:coverage` scripts that Vitest runs.
 
 > **`json-summary` reporter** is required for `davelosert/vitest-coverage-report-action` (see step 13) to post a coverage summary comment on PRs. `text` is kept for readable local output. No third-party service needed — the action uses `GITHUB_TOKEN` directly.
 
@@ -501,7 +507,7 @@ VitePress hosts the project documentation and auto-generated API docs.
 pnpm add -Dw vitepress vite
 ```
 
-> **Why install `vite` explicitly?** VitePress 1.x depends on Vite 5, but Vitest 4.x requires Vite 6+. Without an explicit root-level `vite` entry, pnpm resolves Vitest's peer dependency against Vite 5, which breaks Vitest at startup (`vite/module-runner` does not exist in Vite 5). Adding `vite` at the root forces pnpm to use the latest Vite for Vitest while VitePress keeps its own Vite 5 internally.
+> **Why install `vite` explicitly?** VitePress bundles its own Vite internally, but Vitest 4.x requires a newer Vite than VitePress's internal version. Without an explicit root-level `vite` entry, pnpm may resolve Vitest's peer dependency against VitePress's older internal Vite, which breaks Vitest at startup. Adding `vite` at the root pins the version used by Vitest while VitePress continues to use its own copy.
 
 Create the docs structure manually (skip `vitepress init` — it is interactive and adds scripts you already have):
 
