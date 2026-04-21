@@ -38,7 +38,11 @@ export default defineConfig({
       { text: 'API Reference', link: '/api/' },
     ],
     sidebar: {
-      '/guide/': [{ text: 'Introduction', link: '/guide/' }],
+      '/guide/': [
+        { text: 'Guide', link: '/guide/' },
+        { text: 'Setup instructions', link: '/guide/setup' },
+        { text: 'Stack summary', link: '/guide/stack' },
+      ],
       '/demo-core-lib/': [
         {
           text: '@hg-argo/demo-core-lib',

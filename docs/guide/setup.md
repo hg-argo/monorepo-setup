@@ -98,7 +98,7 @@ public-hoist-pattern[]=@myorg/*
 
 Create a `.gitignore`:
 
-```gitignore
+```txt
 node_modules/
 dist/
 .cache/
@@ -803,7 +803,7 @@ jobs:
 
 > **`NODE_AUTH_TOKEN`** is set to `GITHUB_TOKEN` (not a separate secret) because `actions/setup-node` uses it to write the npm auth token into `.npmrc` for the configured `registry-url`. No extra secrets needed.
 
-> **Publishing to npmjs.com instead:** replace `registry-url` with `https://registry.npmjs.org`, set `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}`, and remove `"registry"` from each package's `publishConfig`.
+> **Publishing to npmjs.com instead:** replace `registry-url` with `https://registry.npmjs.org`, set <code v-pre>NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}</code>, and remove `"registry"` from each package's `publishConfig`.
 
 ---
 

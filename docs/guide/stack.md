@@ -6,11 +6,11 @@ A reference guide to every tool used in this monorepo — what it is, where it's
 
 ## Package Manager
 
-**pnpm v9.15.0** — [`pnpm-workspace.yaml`](pnpm-workspace.yaml), [`.npmrc`](.npmrc)
+**pnpm v9.15.0** — [`pnpm-workspace.yaml`](https://github.com/hg-argo/monorepo-setup/blob/main/pnpm-workspace.yaml), [`.npmrc`](https://github.com/hg-argo/monorepo-setup/blob/main/.npmrc)
 
 Manages packages in the `packages/*` workspace. `engine-strict=true` in `.npmrc` hard-fails if the Node or pnpm version doesn't match the `engines` field. `public-hoist-pattern[]=@hg-argo/*` is required so root-level tools (TypeDoc) can resolve scoped workspace packages without "cannot find module" errors.
 
-**Corepack** — [`package.json`](package.json) (`packageManager` field)
+**Corepack** — [`package.json`](https://github.com/hg-argo/monorepo-setup/blob/main/package.json) (`packageManager` field)
 
 Activates the pinned pnpm version automatically on `pnpm install`, preventing contributors from accidentally using npm or yarn.
 
@@ -18,7 +18,7 @@ Activates the pinned pnpm version automatically on `pnpm install`, preventing co
 
 ## Language
 
-**TypeScript v6.0.3** — [`tsconfig.base.json`](tsconfig.base.json), [`tsconfig.json`](tsconfig.json), per-package `tsconfig.json`
+**TypeScript v6.0.3** — [`tsconfig.base.json`](https://github.com/hg-argo/monorepo-setup/blob/main/tsconfig.base.json), [`tsconfig.json`](https://github.com/hg-argo/monorepo-setup/blob/main/tsconfig.json), per-package `tsconfig.json`
 
 All packages extend `tsconfig.base.json`. Key choices:
 
@@ -35,7 +35,7 @@ All packages extend `tsconfig.base.json`. Key choices:
 
 ## Build
 
-**tsdown v0.21.9** — [`packages/*/tsdown.config.ts`](packages/demo-core-lib/tsdown.config.ts)
+**tsdown v0.21.9** — [`packages/*/tsdown.config.ts`](https://github.com/hg-argo/monorepo-setup/blob/main/packages/demo-core-lib/tsdown.config.ts)
 
 Zero-config TypeScript bundler built on Rolldown (Rust-based Rollup successor). Each package runs two passes — ESM (`.js` / `.d.ts`) and CJS (`.cjs` / `.d.cts`) — producing dual-format output in `dist/`. Dual CJS+ESM is necessary because the Node.js ecosystem is still in transition and many tools still require CJS.
 
@@ -47,7 +47,7 @@ TypeScript script runner used for the `demo-game-lib` runnable demo (`pnpm demo`
 
 ## Linting & Formatting
 
-**Biome v2.4.12** — [`biome.json`](biome.json) (extends `@side-xp/biome-config`)
+**Biome v2.4.12** — [`biome.json`](https://github.com/hg-argo/monorepo-setup/blob/main/biome.json) (extends `@side-xp/biome-config`)
 
 Single tool replacing both ESLint and Prettier. Enforces 2-space indentation, 120-char line width, LF line endings, single quotes, no semicolons, and trailing commas. Import organization is handled by Biome's `assist` feature. Biome is 10–100× faster than the ESLint+Prettier combo and eliminates format/lint-on-save conflicts and plugin version mismatches.
 
@@ -55,18 +55,18 @@ Single tool replacing both ESLint and Prettier. Enforces 2-space indentation, 12
 
 ## Git Hooks
 
-**Husky v9.1.7** — [`.husky/`](.husky/)
+**Husky v9.1.7** — [`.husky/`](https://github.com/hg-argo/monorepo-setup/tree/main/.husky)
 
 Installs git hooks automatically via the `"prepare": "husky"` script (runs on `pnpm install`). Active hooks:
 
 - **pre-commit** → runs lint-staged
 - **commit-msg** → runs commitlint
 
-**lint-staged v16.4.0** — [`.lintstagedrc.json`](.lintstagedrc.json)
+**lint-staged v16.4.0** — [`.lintstagedrc.json`](https://github.com/hg-argo/monorepo-setup/blob/main/.lintstagedrc.json)
 
 Runs `biome check --write` only on staged `ts/tsx/js/jsx/json/jsonc` files. Keeps pre-commit fast by avoiding a full-repo scan.
 
-**commitlint v20.5.0** — [`.commitlintrc.json`](.commitlintrc.json)
+**commitlint v20.5.0** — [`.commitlintrc.json`](https://github.com/hg-argo/monorepo-setup/blob/main/.commitlintrc.json)
 
 Enforces Conventional Commits (`type(scope): description`) on every commit message. Runs at `commit-msg` time rather than pre-push so bad messages are caught immediately, before they accumulate in history. The conventional commit format is the input contract for semantic-release's automatic versioning.
 
@@ -74,7 +74,7 @@ Enforces Conventional Commits (`type(scope): description`) on every commit messa
 
 ## Testing
 
-**Vitest v4.1.4** — [`vitest.workspace.ts`](vitest.workspace.ts), per-package `vitest.config.ts`
+**Vitest v4.1.4** — [`vitest.workspace.ts`](https://github.com/hg-argo/monorepo-setup/blob/main/vitest.workspace.ts), per-package `vitest.config.ts`
 
 Replaces Jest. First-class TypeScript support without a separate transform step, and faster due to parallel execution and esbuild-based transforms. Coverage uses the `v8` provider with `json-summary` reporter (required by the GitHub Actions coverage comment action).
 
@@ -94,7 +94,7 @@ Verifies that TypeScript consumers using `bundler`, `node16`, and `nodenext` mod
 
 ## API Documentation
 
-**TypeDoc v0.28.19** — [`typedoc.json`](typedoc.json)
+**TypeDoc v0.28.19** — [`typedoc.json`](https://github.com/hg-argo/monorepo-setup/blob/main/typedoc.json)
 
 Generates documentation from TypeScript types. Uses `entryPointStrategy: "packages"` to discover each package's entry point automatically.
 
@@ -108,11 +108,11 @@ Output lands in `docs/api/` (gitignored, regenerated in CI).
 
 ## Documentation Site
 
-**VitePress v1.6.4** — [`docs/.vitepress/config.ts`](docs/.vitepress/config.ts)
+**VitePress v1.6.4** — [`docs/.vitepress/config.ts`](https://github.com/hg-argo/monorepo-setup/blob/main/docs/.vitepress/config.ts)
 
 Static site generator for the documentation site deployed to GitHub Pages. `srcDir: '..'` serves markdown from the repo root so package docs can live next to their source code. URL rewrites map `docs/:path` and `packages/*/docs/:page` to clean URLs. The API sidebar is auto-generated from TypeDoc's `typedoc-sidebar.json`.
 
-**Vite v8.0.9** — pinned at root in [`package.json`](package.json)
+**Vite v8.0.9** — pinned at root in [`package.json`](https://github.com/hg-argo/monorepo-setup/blob/main/package.json)
 
 Pinned explicitly because VitePress depends on Vite 5 while Vitest 4 requires Vite 6+. Without a root-level pin, pnpm resolves Vitest's peer against Vite 5, which breaks Vitest at startup. Pinning Vite at root forces the correct version for Vitest; VitePress uses its own internal copy.
 
@@ -120,7 +120,7 @@ Pinned explicitly because VitePress depends on Vite 5 while Vitest 4 requires Vi
 
 ## Release Automation
 
-**semantic-release v25.0.3** + **multi-semantic-release v3.1.0** — [`.releaserc.json`](.releaserc.json)
+**semantic-release v25.0.3** + **multi-semantic-release v3.1.0** — [`.releaserc.json`](https://github.com/hg-argo/monorepo-setup/blob/main/.releaserc.json)
 
 Fully automated versioning and publishing triggered on pushes to `main`. multi-semantic-release runs from the repo root and processes all packages in topological order (dependencies released before dependents), which the alternative `semantic-release-monorepo` does not guarantee.
 
@@ -140,15 +140,15 @@ Tags use the format `${name}@${version}` (e.g. `@hg-argo/demo-core-lib@1.0.0`). 
 
 ## CI/CD
 
-**GitHub Actions** — [`.github/workflows/`](.github/workflows/)
+**GitHub Actions** — [`.github/workflows/`](https://github.com/hg-argo/monorepo-setup/tree/main/.github/workflows)
 
-Three reusable workflows, orchestrated by [`ci.yml`](.github/workflows/ci.yml):
+Three reusable workflows, orchestrated by [`ci.yml`](https://github.com/hg-argo/monorepo-setup/blob/main/.github/workflows/ci.yml):
 
 | Workflow | Triggers | Steps |
 |---|---|---|
-| [`_check.yml`](.github/workflows/_check.yml) | All pushes + PRs | install → lint → build → test (coverage) → publint → attw |
-| [`_release.yml`](.github/workflows/_release.yml) | After check passes on `main` | multi-semantic-release |
-| [`_docs.yml`](.github/workflows/_docs.yml) | After release on `main` | typedoc → vitepress build → deploy to GitHub Pages |
+| [`_check.yml`](https://github.com/hg-argo/monorepo-setup/blob/main/.github/workflows/_check.yml) | All pushes + PRs | install → lint → build → test (coverage) → publint → attw |
+| [`_release.yml`](https://github.com/hg-argo/monorepo-setup/blob/main/.github/workflows/_release.yml) | After check passes on `main` | multi-semantic-release |
+| [`_docs.yml`](https://github.com/hg-argo/monorepo-setup/blob/main/.github/workflows/_docs.yml) | After release on `main` | typedoc → vitepress build → deploy to GitHub Pages |
 
 Coverage summaries are posted as PR comments via `davelosert/vitest-coverage-report-action@v2`.
 
@@ -158,8 +158,8 @@ Coverage summaries are posted as PR comments via `davelosert/vitest-coverage-rep
 
 | Package | Version | Purpose | Depends on |
 |---|---|---|---|
-| [`@hg-argo/demo-core-lib`](packages/demo-core-lib/) | 1.0.0 | `Range` type and `random` utilities | — |
-| [`@hg-argo/demo-game-lib`](packages/demo-game-lib/) | 1.0.1 | `GuessGame` state machine | `demo-core-lib` |
+| [`@hg-argo/demo-core-lib`](/demo-core-lib/) | 1.0.0 | `Range` type and `random` utilities | — |
+| [`@hg-argo/demo-game-lib`](/demo-game-lib/) | 1.0.1 | `GuessGame` state machine | `demo-core-lib` |
 
 `demo-game-lib` exists primarily to demonstrate a cross-package dependency within the monorepo. It uses `demo-core-lib` for range math and random integer generation.
 
