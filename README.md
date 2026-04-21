@@ -28,3 +28,13 @@ Here is a list of the expected features:
 ## Links
 
 - Generated documentation: https://hg-argo.github.io/monorepo-setup
+- Guide for setting up a monorepo like this one: [guide.md](./guide.md)
+- A summary of the stack used in this project: [stack.md](./stack.md)
+
+## Running the demo game
+
+Run the `demo` script of the `demo-gam-lib` package.
+
+```
+pnpm --filter @hg-argo/demo-game-lib demo
+```

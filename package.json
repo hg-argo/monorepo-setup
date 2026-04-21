@@ -19,11 +19,6 @@
     "docs:preview": "pnpm docs:api && pnpm docs:dev",
     "prepare": "husky"
   },
-  "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,json,jsonc}": [
-      "biome check --write"
-    ]
-  },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
     "@biomejs/biome": "^2.4.12",
