@@ -603,16 +603,17 @@ Root `.releaserc.json`:
     "@semantic-release/release-notes-generator",
     ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
     ["@semantic-release/npm", { "npmPublish": false }],
-    ["@semantic-release/exec", {
-      "publishCmd": "pnpm publish --no-git-checks --access public"
-    }],
+    ["@semantic-release/exec", { "prepareCmd": "pnpm install --no-frozen-lockfile" }],
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "package.json"],
+        "assets": ["CHANGELOG.md", "package.json", "pnpm-lock.yaml"],
         "message": "chore(release): ${nextRelease.version} [skip ci]"
       }
     ],
+    ["@semantic-release/exec", {
+      "publishCmd": "pnpm publish --no-git-checks --access public"
+    }],
     "@semantic-release/github"
   ]
 }
@@ -620,11 +621,13 @@ Root `.releaserc.json`:
 
 > **`tagFormat`** scopes release tags to the package name: `@myorg/my-package@1.2.0` instead of a flat `v1.2.0`. This is essential in a monorepo where multiple packages are versioned independently — without it, all packages would share a single release tag namespace.
 
-> **`npmPublish: false`** disables `@semantic-release/npm`'s publish step while keeping its version-bump logic. Publishing is delegated to `@semantic-release/exec` using `pnpm publish`, which is the correct tool for a pnpm workspace: pnpm converts `workspace:*` to the actual version number only in the published tarball, leaving `package.json` on disk untouched. This keeps `workspace:*` in the repo permanently and avoids lockfile drift.
+> **`npmPublish: false`** disables `@semantic-release/npm`'s publish step while keeping its version-bump logic. Publishing is delegated to `@semantic-release/exec` using `pnpm publish --no-git-checks --access public`.
 
-> **`--deps.bump=ignore`** on `multi-semantic-release` prevents it from rewriting `workspace:*` to a concrete version in dependent packages' `package.json`. Without this, `multi-semantic-release` would replace `workspace:*` with `1.0.0` in the committed file, breaking the workspace symlink for local development and causing `pnpm install --frozen-lockfile` to fail on the next CI run.
+> **Lockfile drift:** `multi-semantic-release` rewrites `workspace:*` to the concrete resolved version (e.g. `1.0.0`) in dependent packages' `package.json` as part of the release. This leaves the lockfile out of sync with `package.json`, causing `pnpm install --frozen-lockfile` to fail on the next CI run. The `prepareCmd` step regenerates the lockfile after the version bump (within the `prepare` lifecycle phase, before `@semantic-release/git` commits), and `pnpm-lock.yaml` is added to the git assets so it lands in the same release commit — no extra commit needed.
 
-> **`CHANGELOG.md`** and `package.json` in `@semantic-release/git` assets are relative to each package root. `multi-semantic-release` runs semantic-release in the context of each package, so paths resolve correctly.
+> **`--deps.bump=ignore`** on `multi-semantic-release` prevents a dependent package from being released solely because one of its workspace dependencies was released. Without it, releasing `pkg-a` would trigger a patch bump of every package that depends on it, even with no new commits. This flag does not prevent the `workspace:*` → concrete version rewrite in `package.json` — that still happens and is handled by the lockfile regeneration above.
+
+> **`CHANGELOG.md`**, `package.json`, and `pnpm-lock.yaml` in `@semantic-release/git` assets are relative to each package root. `multi-semantic-release` runs semantic-release in the context of each package, so paths resolve correctly.
 
 Each package that should be published to npm must set `"private": false`. Packages with `"private": true` are skipped by `@semantic-release/npm` automatically — useful for internal or not-yet-published packages.
 

@@ -41,6 +41,6 @@
     "demo": "tsx src/demo.ts"
   },
   "dependencies": {
-    "@hg-argo/demo-core-lib": "1.0.0"
+    "@hg-argo/demo-core-lib": "workspace:*"
   }
 }
