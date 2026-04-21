@@ -287,6 +287,19 @@ pnpm exec commitlint --edit "$1"
 
 > **Why commitlint on commit-msg rather than pre-push?** Catching a bad commit message immediately (before it's in history) is far less disruptive than rejecting a push with multiple already-made commits. Fix it once, not five times.
 
+### Git GUI clients (Fork, Sourcetree, Tower, etc.)
+
+Git GUIs don't inherit your shell's `PATH`, so `pnpm` and `node` are not found at runtime.
+
+Husky v9 provides `~/.config/husky/init.sh` — sourced by the runner before every hook — to fix this. Create it once per machine:
+
+```sh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+> This is a one-time global setup per machine, not per project. Some GUIs (eg. Fork) also expose a dedicated "Git environment PATH" setting that can be used as an alternative.
+
 ---
 
 ## 7. Package build — tsdown
