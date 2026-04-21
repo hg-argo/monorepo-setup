@@ -28,7 +28,7 @@
 Before starting, ensure the following tools are available on your machine:
 
 - **Node.js** ≥ 22 (LTS recommended)
-- **pnpm** ≥ 9 — install via [Corepack](https://nodejs.org/api/corepack.html): `corepack enable && corepack prepare pnpm@latest --activate`
+- **pnpm** ≥ 10 — install via [Corepack](https://nodejs.org/api/corepack.html): `corepack enable && corepack prepare pnpm@latest --activate`
 - **Git** ≥ 2.x
 
 > **Why Corepack?** Corepack ships with Node.js and manages package manager versions without requiring a global install. It also enforces the `packageManager` field in `package.json`, which is how we prevent contributors from accidentally using npm or yarn.
@@ -66,10 +66,10 @@ Create the root `package.json`:
   "name": "monorepo",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=22",
-    "pnpm": ">=9"
+    "pnpm": ">=10"
   },
   "scripts": {
     "build": "pnpm -r build",
