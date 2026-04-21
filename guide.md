@@ -259,12 +259,10 @@ pnpm add -Dw lint-staged
 pnpm exec lint-staged
 ```
 
-`package.json` (root):
+`.lintstagedrc.json`:
 ```json
 {
-  "lint-staged": {
-    "**/*.{ts,tsx,js,jsx,json,jsonc}": ["biome check --write"]
-  }
+  "**/*.{ts,tsx,js,jsx,json,jsonc}": ["biome check --write"]
 }
 ```
 
@@ -274,9 +272,9 @@ pnpm exec lint-staged
 pnpm add -Dw @commitlint/cli @commitlint/config-conventional
 ```
 
-`commitlint.config.js`:
-```js
-export default { extends: ['@commitlint/config-conventional'] };
+`.commitlintrc.json`:
+```json
+{ "extends": ["@commitlint/config-conventional"] }
 ```
 
 `.husky/commit-msg`:
